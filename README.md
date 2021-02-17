@@ -1,2 +1,3 @@
 # amath
-c++ math library
+*c++ math library ( currently on work )
+*Documentation ( currently on work )
