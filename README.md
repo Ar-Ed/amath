@@ -1,0 +1,2 @@
+# amath
+c++ math library
