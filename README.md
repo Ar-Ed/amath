@@ -1,3 +1,3 @@
 # amath
-*c++ math library ( currently on work )
-*Documentation ( currently on work )
+* c++ math library ( currently on work )
+* Documentation ( currently on work )
