@@ -1,38 +1,22 @@
-#include "lib.h"
-#include "cmath"
-
-double myfucntion(double number){
-    return cos(number) * log10(number) / 100;
-}
+#include "array.h"
+#include <cmath>
 
 int main()
 {
-    array m1({1, 2, 3, 5, 5, 6, 3, 2, 32, 4}, 2, 5);
-
-    array m2 = m1 + m1;
-    m2.print(" ");
-
+    array m1({
+            1, 2, 3, 5, 
+            5, 6, 3, 2, 
+            32, 4, 1, 5, 
+            10, 20, 40, 0}, 4, 4);
+    m1.print();
     std::cout << "\n";
+    m1.Utriangular().print();
+    std::cout << m1.det();
 
-    m1 = m2.copy();
-    m1.print(" ");
+    std::cout << "\n\n";
+    m1.aggregate(COL, [](auto x, auto y) {return x + y;}).print();
 
-    std::cout << "\n";
+    std::cout << m1 << "\n" << m1(0, 0) << "\n" << (m1 == m1) << "\n" << m1({1,3}, {0,4});
 
-    (m1 * 3 - m1 / 3).print(" ");
-
-    std::cout << "\n";
-
-    array m3 = m1 * m1.transpose();
-    m3.print(" ");
-
-    std::cout << "\n";
-    (m3.apply(myfucntion)).print();
-
-    //array m2({1, 2, 3, 5, 5, 6, 3, 2, 32, 4}, 2, 5);
-
-    //array m3 = m1 + m2;
-
-    //std::cout << m1.get_cols() << " " << m1.get_rows() << " " << m1.get_size();
     return 0;
 }
