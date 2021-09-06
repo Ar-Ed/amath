@@ -1,6 +1,12 @@
 {
     "files.associations": {
         "iosfwd": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "__tuple": "cpp",
+        "array": "cpp",
+        "__bit_reference": "cpp",
+        "__string": "cpp",
+        "iterator": "cpp",
+        "string": "cpp"
     }
 }
