@@ -3,32 +3,7 @@
 array::array(std::vector<double> v, int rows, int cols) : vector(v), cols(cols), rows(rows), size(cols * rows) {}
 array::array(std::string file_path)
 {
-    std::ifstream f;
-    std::vector<double> vec;
-    std::string line, temp, word;
-    int size = 0, rows = 0;
-
-    f.open(file_path);
-
-    while (f >> temp)
-    {
-        std::getline(f, line);
-        std::stringstream s(line);
-        rows++;
-
-        while (std::getline(s, word, ','))
-        {
-
-            size++;
-            vec.push_back(std::stod(word));
-        }
-    }
-    f.close();
-
-    this->rows = rows;
-    this->vector = vec;
-    this->size = size;
-    this->cols = size / rows;
+    this->read_file(file_path);
 }
 
 void array::write_file(std::string file_path)
@@ -50,30 +25,25 @@ void array::read_file(std::string file_path)
 {
     std::ifstream f;
     std::vector<double> vec;
-    std::string line, temp, word;
-    int size = 0, rows = 0;
+    std::string temp, word;
+    int _rows = 0;
 
     f.open(file_path);
 
     while (f >> temp)
     {
-        std::getline(f, line);
-        std::stringstream s(line);
-        rows++;
+        std::stringstream s(temp);
+        _rows++;
 
         while (std::getline(s, word, ','))
-        {
-
-            size++;
             vec.push_back(std::stod(word));
-        }
     }
-    f.close();
 
-    this->rows = rows;
+    this->rows = _rows;
     this->vector = vec;
-    this->size = size;
-    this->cols = size / rows;
+    this->size = this->vector.size();
+    this->cols = this->size / _rows;
+    f.close();
 }
 
 array leastSquares(array data, int order_of_polynomial)
@@ -128,13 +98,14 @@ array array::solveSquare(array matrix)
     }
 
     std::vector<double> vec{matrix.get_vector()};
+    std::vector<double> x{this->get_vector()};
 
     for (int i = 0; i < matrix.get_rows(); i++)
     {
         for (int j = i + 1; j < matrix.get_rows(); j++)
         {
             double constant = vec[matrix.get_cols() * j + i] / vec[(matrix.get_cols() + 1) * i];
-            this->vector[j] -= constant * this->vector[i];
+            x[j] -= constant * x[i];
             for (int k = 0; k < matrix.get_cols(); k++)
                 vec[matrix.get_cols() * j + k] -= constant * vec[matrix.get_cols() * i + k];
         }
@@ -145,16 +116,16 @@ array array::solveSquare(array matrix)
         for (int j = i - 1; j >= 0; j--)
         {
             double constant = vec[matrix.get_cols() * j + i] / vec[(matrix.get_cols() + 1) * i];
-            this->vector[j] -= constant * this->vector[i];
+            x[j] -= constant * x[i];
             for (int k = 0; k < matrix.get_cols(); k++)
                 vec[matrix.get_cols() * j + k] = vec[matrix.get_cols() * j + k] - constant * vec[matrix.get_cols() * i + k];
         }
     }
 
     for (int i = 0; i < this->rows; i++)
-        this->vector[i] /= vec[(matrix.cols + 1) * i];
+        x[i] /= vec[(matrix.cols + 1) * i];
 
-    return *this;
+    return array(x, this->get_rows(), 1);
 }
 
 void array::print(std::string delimeter, int precision) const

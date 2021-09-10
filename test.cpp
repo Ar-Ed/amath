@@ -1,6 +1,8 @@
 #include "amatrix.h"
 #include <cmath>
 
+namespace plt = matplotlibcpp;
+
 int main()
 {
     array m1({1, 2, 3, 5,
@@ -41,6 +43,15 @@ int main()
              3, 2);
     std::cout << "\n\n"
               << leastSquares(b1, 2);
+
+    m1.write_file("m1.csv");
+    array m2("m1.csv");
+    m1.read_file("m1.csv");
+
+    std::cout << "\n\n" << m1 << "\n" << m2 << m2.get_rows() << " " << m2.get_cols() << " " << m2.get_size();
+
+    plt::plot({1, 2 ,3, 4});
+    plt::show();
 
     return 0;
 }

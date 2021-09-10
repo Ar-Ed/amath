@@ -1,4 +1,5 @@
 #pragma once
+#include "matplotlibcpp.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -10,28 +11,6 @@
 #define COL 1
 #define PI 3.141592653589793
 #define PI180 0.017453292519943
-
-struct rational
-{
-    rational(unsigned long long numerator, unsigned long long denominator);
-
-    double to_double() const;
-
-    rational operator+(int constant) const;
-    rational operator-(int constant) const;
-    rational operator*(int constant) const;
-    rational operator/(int constant) const;
-
-    rational operator+(const rational &rat) const;
-    rational operator-(const rational &rat) const;
-    rational operator*(const rational &rat) const;
-    rational operator/(const rational &rat) const;
-
-private:
-    unsigned long long numerator; // prime array???
-    unsigned long long denominator;
-    char sign;
-};
 
 struct complex
 {
@@ -132,7 +111,6 @@ private:
 std::ostream &operator<<(std::ostream &out, const array &arr);
 std::ostream &operator<<(std::ostream &out, const complex &number);
 array leastSquares(array data, int order_of_polynomial);
-
 
 /*
     templates, complex class
