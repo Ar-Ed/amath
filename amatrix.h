@@ -43,15 +43,17 @@ struct array
     array cofactorMatrix() const;
 
     array trace() const;
+    double minor(int i, int j) const;
+    double cofactor(int i, int j) const;
     array eigBiggerThan() const;
     array eigLessThan() const;
     double det() const;
 
-    bool isSquare(); // don't implement bool functions as methods
-    bool isSkewSymmetric();
-    bool isSymmetric();
-    bool isBoolean();
-    bool isDiagonal();
+    bool isSquare() const;
+    bool isSkewSymmetric() const;
+    bool isSymmetric() const;
+    bool isBoolean() const;
+    bool isDiagonal() const;
 
     array operator>(double number) const;
     array operator<(double number) const;
@@ -110,6 +112,32 @@ array leastSquares(array data, int order_of_polynomial);
 array diagonal(double value, int rows, int cols);
 array random(double start, double _end, int rows, int cols); // range implementation and intrandom version
 
+/*
+    
+    assigning values to indeces
+    QR factorization
+    eig vals
+    templates, complex class
+    partial solutions 
+    append new columns and rows
+    row col and range indexing with step size
+    Least squares method : best fit line, best fit quadratic, best-fit exponential
+    cout << output formatting --> cout is pprint, print is the normal one : I need to come up with solutions
+
+    complex power, and sqrt
+*/
+
+
+//
+//
+//
+//
+//  EXPERIMENTAL SECTION
+//
+//
+//
+//
+
 namespace approx
 {
     double derivative(double x_val, double (*function)(double), int precision);
@@ -162,21 +190,3 @@ private:
 };
 
 std::ostream &operator<<(std::ostream &out, const complex &number);
-
-/*
-    
-    assigning values to indeces
-    QR factorization
-    eig vals
-    templates, complex class
-    partial solutions 
-    isSquare, minors, cofactors, inverses
-    append new columns and rows
-    row col and range indexing with step size
-    Least squares method : best fit line, best fit quadratic, best-fit exponential
-    cout << output formatting --> cout is pprint, print is the normal one
-
-    pairwise array arithmetic
-
-    complex power, and sqrt
-*/

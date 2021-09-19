@@ -76,8 +76,13 @@ int main()
               << lu[0] << "\n"
               << lu[1] << "\n"
               << lu[0] * lu[1] << "\n"
-              << array(4, 4, 1, 2, 3, 4, 7, 8, 2, 1, 9, 5, 3, 5, 11, 13, 20, 17).Ltriangular() << "\n" 
-              << array(4, 4, 1, 2, 3, 4, 7, 8, 2, 1, 9, 5, 3, 5, 11, 13, 20, 17).Utriangular();        
+              << array(4, 4, 1, 2, 3, 4, 7, 8, 2, 1, 9, 5, 3, 5, 11, 13, 20, 17).Ltriangular() << "\n"
+              << array(4, 4, 1, 2, 3, 4, 7, 8, 2, 1, 9, 5, 3, 5, 11, 13, 20, 17).Utriangular();
 
+    std::cout << "\n"
+              << array(3, 3, 1, 2, 5, 6, 7, 1, 2, 3, 4).minorMatrix() << "\n"
+              << array(3, 3, 1, 2, 5, 6, 7, 1, 2, 3, 4).cofactorMatrix();
+
+    array(3, 3, 1, 2, 5, 6, 7, 1, 2, 3, 4).cofactorMatrix().print(",", 6);
     return 0;
 }

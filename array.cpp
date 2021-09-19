@@ -50,6 +50,80 @@ array::array(std::string file_path)
     f.close();
 }
 
+// Returns true if the array is a square matrix
+bool array::isSquare() const
+{
+    if (this->cols == this->rows)
+        return true;
+    return false;
+}
+
+// Returns true if the array is skew-symmetric matrix
+bool array::isSkewSymmetric() const
+{
+    if (!this->isSquare())
+        return false;
+    for (int i = 0; i < this->cols; i++)
+    {
+        for (int j = i; j < this->cols; j++)
+        {
+            if (this->at(i, j) != -this->at(j, i))
+                return false;
+        }
+    }
+
+    return true;
+}
+
+// Returns true if the array is symmetric matrix
+bool array::isSymmetric() const
+{
+    if (!this->isSquare())
+        return false;
+    for (int i = 0; i < this->cols; i++)
+    {
+        for (int j = i; j < this->cols; j++)
+        {
+            if (this->at(i, j) != this->at(j, i))
+                return false;
+        }
+    }
+
+    return true;
+}
+
+// Returns true if the array contains only 0 or 1
+bool array::isBoolean() const
+{
+    for (int i = 0; i < this->rows; i++)
+    {
+        for (int j = 0; j < this->cols; j++)
+        {
+            if (this->at(i, j) != 0 && this->at(i, j) != 1)
+                return false;
+        }
+    }
+
+    return true;
+}
+
+// Returns true if the array contains non-zero values only on the diagonal
+bool array::isDiagonal() const
+{
+    for (int i = 0; i < this->rows; i++)
+    {
+        for (int j = 0; j < this->cols; j++)
+        {
+            if (i == j)
+                continue;
+            if (this->at(i, j) != 0)
+                return false;
+        }
+    }
+
+    return true;
+}
+
 // LU Factorization
 std::vector<array> array::LUFactor() const
 {
@@ -74,17 +148,90 @@ std::vector<array> array::LUFactor() const
     return std::vector<array>{Larray, array(vec, this->rows, this->cols)};
 }
 
-/* array array::minorMatrix() const
+// returns the cofactor C_{ij}
+double array::cofactor(int i, int j) const
+{
+    if (i < 0 || j < 0)
+        throw std::invalid_argument("i and j should be nonnegative for the 'minor' function. (ERROR IN 'minor' FUNCTION)");
+    else if (i >= this->rows || j >= this->cols)
+        throw std::invalid_argument("i and j should be less then the number of cols and rows for the 'minor' function. (ERROR IN 'minor' FUNCTION)");
+
+    std::vector<double> vals;
+
+    for (int x = 0; x < this->rows; x++)
+    {
+        if (x == i)
+            continue;
+        for (int y = 0; y < this->cols; y++)
+        {
+            if (y == j)
+                continue;
+            vals.push_back(this->at(x, y));
+        }
+    }
+
+    if ((i + j) % 2 == 0)
+        return array(vals, this->rows - 1, this->rows - 1).det();
+    else
+        return -array(vals, this->rows - 1, this->rows - 1).det();
+}
+
+// returns the minor M_{ij}
+double array::minor(int i, int j) const
+{
+    if (i < 0 || j < 0)
+        throw std::invalid_argument("i and j should be nonnegative for the 'minor' function. (ERROR IN 'minor' FUNCTION)");
+    else if (i >= this->rows || j >= this->cols)
+        throw std::invalid_argument("i and j should be less then the number of cols and rows for the 'minor' function. (ERROR IN 'minor' FUNCTION)");
+
+    std::vector<double> vals;
+    for (int x = 0; x < this->rows; x++)
+    {
+        if (x == i)
+            continue;
+        for (int y = 0; y < this->cols; y++)
+        {
+            if (y == j)
+                continue;
+            vals.push_back(this->at(x, y));
+        }
+    }
+    return array(vals, this->rows - 1, this->rows - 1).det();
+}
+
+// returns the matrix of minors
+array array::minorMatrix() const
 {
     std::vector<double> minors(this->cols * this->rows);
+    std::vector<double> dets((this->cols - 1) * (this->rows - 1));
+
     for (int i = 0; i < this->rows; i++)
     {
         for (int j = 0; j < this->cols; j++)
         {
-            minors[this->cols * minors + this->rows] = det(array())
+            minors[this->cols * i + j] = this->minor(i, j);
         }
     }
-} */
+
+    return array(minors, this->rows, this->cols);
+}
+
+// returns the matrix of cofactors
+array array::cofactorMatrix() const
+{
+    std::vector<double> minors(this->cols * this->rows);
+    std::vector<double> dets((this->cols - 1) * (this->rows - 1));
+
+    for (int i = 0; i < this->rows; i++)
+    {
+        for (int j = 0; j < this->cols; j++)
+        {
+            minors[this->cols * i + j] = this->cofactor(i, j);
+        }
+    }
+
+    return array(minors, this->rows, this->cols);
+}
 
 // returns the sum of diagonal values. Even if the matrix is not square it acts as if the matrix is square with dimensions 'least(rows,cols)'
 array array::trace() const
