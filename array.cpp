@@ -7,7 +7,7 @@ array::array(std::vector<double> v, int rows, int cols) : vector(v)
         throw std::invalid_argument("\n\t'rows' and 'cols' arguments in constructor should be positive");
     else if (v.size() != rows * cols)
         throw std::invalid_argument("\n\tSize of the 'v' should be equal to the product of 'rows' and 'cols'");
-        
+
     this->rows = rows;
     this->cols = cols;
     this->size = cols * rows;
@@ -51,14 +51,12 @@ array::array(std::string file_path)
 }
 
 // LU Factorization
-std::vector<array> array::LUFactor() const // fix L part
+std::vector<array> array::LUFactor() const
 {
     if (this->rows != this->cols)
-        throw std::invalid_argument("\n\tLU factorization requires square matrices.");
+        throw std::invalid_argument("\n\tLU factorization requires square a matrix.");
 
-    array total = diagonal(1, this->rows, this->cols);
-    std::vector<array> elimination_matrices;
-
+    array Larray = diagonal(1, this->rows, this->cols);
     std::vector<double> vec{this->vector};
 
     for (int i = 0; i < this->rows; i++)
@@ -66,19 +64,14 @@ std::vector<array> array::LUFactor() const // fix L part
         for (int j = i + 1; j < this->rows; j++)
         {
             double constant = vec[this->cols * j + i] / vec[(this->cols + 1) * i];
-            array elim = diagonal(1, this->rows, this->cols);
-
-            elim.assign(constant, j, i);
-            elimination_matrices.push_back(elim);
+            Larray.assign(constant * Larray(this->cols * i + i), j, i);
 
             for (int k = 0; k < this->cols; k++)
                 vec[this->cols * j + k] -= constant * vec[this->cols * i + k];
         }
     }
-    for (int i = elimination_matrices.size() - 1; i >= 0; i--)
-        total = elimination_matrices[i] * total;
 
-    return std::vector<array>{total, array(vec, this->rows, this->cols)};
+    return std::vector<array>{Larray, array(vec, this->rows, this->cols)};
 }
 
 /* array array::minorMatrix() const
@@ -479,9 +472,9 @@ array array::pairWise(double (*function)(double, double), array second_array) co
 array array::operator()(std::vector<int> row_range, std::vector<int> col_range) const
 {
     if (row_range.size() != 2 || col_range.size() != 2)
-        throw std::invalid_argument('row_range and col_range should be vectors with 2 values');
+        throw std::invalid_argument("row_range and col_range should be vectors with 2 values");
     else if (row_range[0] < 0 || row_range[1] < 0 || col_range[0] < 0 || col_range[1] < 0)
-        throw std::invalid_argument('row_range and col_range should be vectors with poisitive values');
+        throw std::invalid_argument("row_range and col_range should be vectors with poisitive values");
 
     int rows = (row_range[1] - row_range[0]), cols = (col_range[1] - col_range[0]);
     std::vector<double> vec(rows * cols);

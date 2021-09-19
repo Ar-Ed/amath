@@ -5,7 +5,7 @@ int main()
     array m1({1, 2, 3, 5,
               5, 6, 3, 2,
               32, 4, 1, 5,
-              10, 20, 40, 0, 3},
+              10, 20, 40, 0},
              4, 4);
     m1.print();
     std::cout << "\n";
@@ -62,8 +62,8 @@ int main()
 
     std::cout << "\n"
               << random(0, 1, 3, 3).pairWise([](double x, double y)
-                                       { return x + y; },
-                                       random(0, 1,3, 3));
+                                             { return x + y; },
+                                             random(0, 1, 3, 3));
 
     std::cout << "\n"
               << array(2, 2, 1, 2, 3, 4).inverse();
@@ -75,8 +75,9 @@ int main()
     std::cout << "\n"
               << lu[0] << "\n"
               << lu[1] << "\n"
-              << array(4, 4, 1, 2, 3, 4, 7, 8, 2, 1, 9, 5, 3, 5, 11, 13, 20, 17).Ltriangular() << "\n"//broken
-              << array(4, 4, 1, 2, 3, 4, 7, 8, 2, 1, 9, 5, 3, 5, 11, 13, 20, 17).Utriangular();//broken
+              << lu[0] * lu[1] << "\n"
+              << array(4, 4, 1, 2, 3, 4, 7, 8, 2, 1, 9, 5, 3, 5, 11, 13, 20, 17).Ltriangular() << "\n" 
+              << array(4, 4, 1, 2, 3, 4, 7, 8, 2, 1, 9, 5, 3, 5, 11, 13, 20, 17).Utriangular();        
 
     return 0;
 }
