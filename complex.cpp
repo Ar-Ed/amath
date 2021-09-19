@@ -1,5 +1,7 @@
 #include "amatrix.h"
 
+using namespace matrix;
+
 complex::complex(double real, double imag) : real(real), imag(imag)
 {
     this->angle = atan(imag / real);
