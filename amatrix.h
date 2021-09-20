@@ -122,8 +122,8 @@ array arange(double start, double end, int step_size);
 array leastSquares(array data, int order_of_polynomial);
 array diagonal(double value, int rows, int cols);
 array random(double start, double _end, int rows, int cols);                                       // range implementation and intrandom version
-void plot(std::vector<double> xlim, std::vector<double> ylim, array array, std::string file_name); // plot class
-void plotPoly(double start, double end, array array, std::string file_name);                       // plot class
+void plot(std::vector<double> xlim, std::vector<double> ylim, array array, std::string file_name=""); // plot class
+void plotPoly(std::vector<double> xlim, std::vector<double> ylim, array arr, array range, array &data, std::string file_name = "");                       // plot class
 
 
 /*

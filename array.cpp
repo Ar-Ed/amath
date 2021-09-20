@@ -952,27 +952,50 @@ void plot(std::vector<double> xlim, std::vector<double> ylim, array array, std::
     std::vector<double> x{array({0, array.get_rows()}, {0, 1}).get_vector()};
     std::vector<double> y{array({0, array.get_rows()}, {1, 2}).get_vector()};
 
-    plt::figure_size(1200, 780);
+    plt::figure_size(600, 400);
 
     plt::plot(x, y, "ro");
 
     plt::xlim(xlim[0], xlim[1]);
     plt::ylim(ylim[0], ylim[1]);
 
-    plt::title("Sample figure");
+    if (!file_name.empty())
+    {
+        plt::save(file_name);
+    }
 
     plt::show();
 }
 
-/* void plotPoly(double start, double end, array array, int partitions, std::string file_name)
+void plotPoly(std::vector<double> xlim, std::vector<double> ylim, array arr, array range, array &data, std::string file_name)
 {
-    if (array->cols != 1)
+    if (arr.get_cols() != 1)
         throw std::runtime_error("plotPoly array must have 1 columns");
 
-    std::vector<double>
+    std::vector<double> vec(range.get_size());
 
-        double result = 0;
-    for (int i = 0; i < array.get_size(); i++)
+    for (int j = 0; j < range.get_size(); j++)
     {
+        double y_val = 0;
+        for (int i = 0; i < arr.get_size(); i++)
+        {
+            y_val += arr(arr.get_size() - i - 1) * pow(range(j), i);
+        }
+        vec[j] = y_val;
     }
-} */
+
+    plt::figure_size(600, 400);
+
+    plt::plot(range.get_vector(), vec, "b");
+    plt::scatter(data({0, data.get_rows()}, {0, 1}).get_vector(), data({0, data.get_rows()}, {1, 2}).get_vector(), 10.);
+
+    plt::xlim(xlim[0], xlim[1]);
+    plt::ylim(ylim[0], ylim[1]);
+
+    if (!file_name.empty())
+    {
+        plt::save(file_name);
+    }
+
+    plt::show();
+}

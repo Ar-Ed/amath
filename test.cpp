@@ -89,7 +89,20 @@ int main()
 
     //array(2., 500, 500) * array(1., 500, 500);
 
-    std::cout << logspace(1, 1e9, 10) << "\n"<< linspace(1, 100, 10) << "\n"<< arange(1, 100, 10);
+    // something wrong with this one
+    //std::cout << logspace(1, 1e9, 10) << "\n"<< linspace(1, 100, 10) << "\n"<< arange(1, 100, 10);
+
+    for (int i = 1; i < 10; i++)
+    {
+        array coeff = leastSquares(b1, i);
+        std::cout << b1 << "\n"
+                  << coeff;
+
+        plotPoly({0, 4}, {0, 5}, coeff, linspace(0, 4, 100), b1, "save.pdf");
+    }
+
+    array coeff = leastSquares(b1, 1);
+    plotPoly({0, 4}, {0, 5}, coeff, linspace(0, 4, 100), b1, "save.pdf");
 
     return 0;
 }
