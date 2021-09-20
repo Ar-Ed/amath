@@ -87,8 +87,9 @@ int main()
 
     //plot({0, 7}, {0, 10}, array(4, 2, 3, 4, 4, 2, 5, 4, 6, 7), "myfile.png");
 
-    array(2., 500, 500) * array(1., 500, 500);
-    
+    //array(2., 500, 500) * array(1., 500, 500);
+
+    std::cout << logspace(1, 1e9, 10) << "\n"<< linspace(1, 100, 10) << "\n"<< arange(1, 100, 10);
 
     return 0;
 }

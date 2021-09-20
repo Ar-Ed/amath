@@ -53,6 +53,48 @@ array::array(std::string file_path)
     f.close();
 }
 
+// returns an array with 1 rows with 'partition_count' values ranging from 'start' to 'end'
+array linspace(double start, double end, int partition_count)
+{
+    std::vector<double> vec(partition_count);
+    double dx = (end - start) / (partition_count - 1);
+
+    for (int i = 0; i < partition_count; i++)
+    {
+        vec[i] = start + i * dx;
+    }
+
+    return array(vec, 1, partition_count);
+}
+
+// returns an array with 1 rows with 'partition_count' values ranging from 'start' to 'end' logarithmically
+array logspace(double start, double end, int partition_count)
+{
+    std::vector<double> vec(partition_count);
+    double logdy = (log10(end) - log10(start)) / (partition_count - 1);
+
+    for (int i = 0; i < partition_count; i++)
+    {
+        vec[i] = start + pow(10, i * logdy) - 1;
+    }
+
+    return array(vec, 1, partition_count);
+}
+
+// returns an array with 1 rows with the values distanced 'step_size' ranging from 'start' to 'end'
+array arange(double start, double end, int step_size)
+{
+    std::vector<double> vec(ceil((end - start) / step_size));
+
+    vec[0] = start;
+    for (int i = 1; vec[i - 1] < end; i++)
+    {
+        vec[i] = start + i * step_size;
+    }
+
+    return array(vec, 1, ceil((end - start) / step_size));
+}
+
 // Returns true if the array is a square matrix
 bool array::isSquare() const
 {
@@ -922,6 +964,15 @@ void plot(std::vector<double> xlim, std::vector<double> ylim, array array, std::
     plt::show();
 }
 
-void plotPoly(double start, double end, array array, std::string file_name)
+/* void plotPoly(double start, double end, array array, int partitions, std::string file_name)
 {
-}
+    if (array->cols != 1)
+        throw std::runtime_error("plotPoly array must have 1 columns");
+
+    std::vector<double>
+
+        double result = 0;
+    for (int i = 0; i < array.get_size(); i++)
+    {
+    }
+} */

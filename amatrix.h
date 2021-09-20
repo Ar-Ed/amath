@@ -49,9 +49,8 @@ struct array
     array trace() const;
     double minor(int i, int j) const;
     double cofactor(int i, int j) const;
-    array eigBiggerThan() const;
-    array eigLessThan() const;
     double det() const;
+    array eigVals() const;
 
     bool isSquare() const;
     bool isSkewSymmetric() const;
@@ -117,11 +116,15 @@ private:
 
 array read_file(std::string file_path);
 std::ostream &operator<<(std::ostream &out, const array &arr);
+array linspace(double start, double end, int partition_count);
+array logspace(double start, double end, int partition_count);
+array arange(double start, double end, int step_size);
 array leastSquares(array data, int order_of_polynomial);
 array diagonal(double value, int rows, int cols);
 array random(double start, double _end, int rows, int cols);                                       // range implementation and intrandom version
 void plot(std::vector<double> xlim, std::vector<double> ylim, array array, std::string file_name); // plot class
 void plotPoly(double start, double end, array array, std::string file_name);                       // plot class
+
 
 /*
     
