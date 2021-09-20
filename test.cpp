@@ -84,5 +84,9 @@ int main()
               << array(3, 3, 1, 2, 5, 6, 7, 1, 2, 3, 4).cofactorMatrix();
 
     array(3, 3, 1, 2, 5, 6, 7, 1, 2, 3, 4).cofactorMatrix().print(",", 6);
+
+    plot({0, 7}, {0, 10}, array(4, 2, 3, 4, 4, 2, 5, 4, 6, 7), "myfile.png");
+    
+
     return 0;
 }

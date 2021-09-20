@@ -1,14 +1,11 @@
 C = g++
-opt = -std=c++20 -O3
+opt = -std=c++20 -O0
 
-all: 
-	${C} ${opt} array.cpp test.cpp -o test 
+
+all:
+	${C} ${opt} array.cpp test.cpp -I/Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/python2.7 -lpython2.7 -o test
 	./test
 
-app: 
-	${C} ${opt} approx.cpp apptest.cpp -o app 
-	./app
-
-cmp:
-	${C} ${opt} complex.cpp testcomp.cpp -o testc
-	./testc
+rm:
+	rm test
+	

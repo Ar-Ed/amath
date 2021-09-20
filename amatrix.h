@@ -9,6 +9,11 @@
 #include <algorithm>
 #include <random>
 #include <exception>
+#include <thread>
+
+#define WITHOUT_NUMPY 1
+#include "matplotlibcpp.h"
+
 
 #define ROW 0
 #define COL 1
@@ -111,9 +116,12 @@ std::ostream &operator<<(std::ostream &out, const array &arr);
 array leastSquares(array data, int order_of_polynomial);
 array diagonal(double value, int rows, int cols);
 array random(double start, double _end, int rows, int cols); // range implementation and intrandom version
+void plot(std::vector<double> xlim, std::vector<double> ylim, array array, std::string file_name); // plot class 
+void plotPoly(double start, double end, array array, std::string file_name); // plot class 
 
 /*
     
+    ********* linspace, logspace, arange 
     assigning values to indeces
     QR factorization
     eig vals
@@ -126,67 +134,3 @@ array random(double start, double _end, int rows, int cols); // range implementa
 
     complex power, and sqrt
 */
-
-
-//
-//
-//
-//
-//  EXPERIMENTAL SECTION
-//
-//
-//
-//
-
-namespace approx
-{
-    double derivative(double x_val, double (*function)(double), int precision);
-    double nthderivative(double x_val, int derivative_order, double (*function)(double), int precision);
-    double simpInt(double start, double end, double dx, double (*function)(double));
-    double simpInt(double start, double end, int partitions, double (*function)(double));
-}
-
-namespace sp
-{
-    struct BinomialDistribution
-    {
-        BinomialDistribution(int trial_count, double success_probabiliity);
-        double pmf(int number_of_success);
-        double pdf_range(int min_suc, int max_suc);
-
-    private:
-        int trial_count;
-        double success_probabiliity;
-    };
-}
-
-struct complex // inherit from <complex>
-{
-    complex(double real, double imag);
-    complex(double angle);
-
-    /*     complex operator^(int power) const; */
-    complex operator~() const;
-
-    complex operator+(double constant) const;
-    complex operator-(double constant) const;
-    complex operator*(double constant) const;
-    complex operator/(double constant) const;
-
-    complex operator+(const complex &number) const;
-    complex operator-(const complex &number) const;
-    complex operator*(const complex &number) const;
-    complex operator/(const complex &number) const;
-
-    double get_real() const;
-    double get_imag() const;
-    double get_angle() const;
-
-private:
-    std::vector<double> angle_to_complex(double angle);
-    double real;
-    double imag;
-    double angle;
-};
-
-std::ostream &operator<<(std::ostream &out, const complex &number);

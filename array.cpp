@@ -1,5 +1,7 @@
 #include "amatrix.h"
 
+namespace plt = matplotlibcpp;
+
 // 'v' for values, rows for the number of rows, cols for the number of cols. Rows wrap according to the dimensions
 array::array(std::vector<double> v, int rows, int cols) : vector(v)
 {
@@ -67,6 +69,8 @@ bool array::isSkewSymmetric() const
     {
         for (int j = i; j < this->cols; j++)
         {
+            if (i == j)
+                continue;
             if (this->at(i, j) != -this->at(j, i))
                 return false;
         }
@@ -84,6 +88,8 @@ bool array::isSymmetric() const
     {
         for (int j = i; j < this->cols; j++)
         {
+            if (i == j)
+                continue;
             if (this->at(i, j) != this->at(j, i))
                 return false;
         }
@@ -624,12 +630,12 @@ array array::operator()(std::vector<int> row_range, std::vector<int> col_range) 
         throw std::invalid_argument("row_range and col_range should be vectors with poisitive values");
 
     int rows = (row_range[1] - row_range[0]), cols = (col_range[1] - col_range[0]);
-    std::vector<double> vec(rows * cols);
+    std::vector<double> vec;
 
     for (int i = row_range[0]; i < row_range[1]; i++)
     {
         for (int j = col_range[0]; j < col_range[1]; j++)
-            vec[cols * (i - row_range[0]) + j] = this->vector[i * cols + j];
+            vec.push_back(this->at(i, j));
     }
     return array(vec, rows, cols);
 }
@@ -857,4 +863,27 @@ array array::operator!=(const array &matrix) const
         vec[i] = this->vector[i] != matrix(i);
     }
     return array(vec, this->rows, this->cols);
+}
+
+void plot(std::vector<double> xlim, std::vector<double> ylim, array array, std::string file_name)
+{
+    if(array.get_cols() != 2)
+        throw std::invalid_argument("To plot an array, array must have 2 cols");
+    std::vector<double> x{array({0, array.get_rows()}, {0, 1}).get_vector()};
+    std::vector<double> y{array({0, array.get_rows()}, {1, 2}).get_vector()};
+
+    plt::figure_size(1200, 780);
+
+    plt::plot(x, y, "ro");
+
+    plt::xlim(xlim[0], xlim[1]);
+    plt::ylim(ylim[0], ylim[1]);
+
+    plt::title("Sample figure");
+
+    plt::show();
+}
+
+void plotPoly(double start, double end, array array, std::string file_name)
+{
 }
