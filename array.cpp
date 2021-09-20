@@ -16,11 +16,12 @@ array::array(std::vector<double> v, int rows, int cols) : vector(v)
 }
 
 // 'uniform_val' for initilization with an uniform value, rows for the number of rows, cols for the number of cols. Rows wrap according to the dimensions
-array::array(double uniform_val, int rows, int cols)
+array::array(double uniform_val, int rows, int cols) : cols(cols), rows(rows), size(rows * cols)
 {
     if (rows < 1 || cols < 1)
         throw std::invalid_argument("\n\t'rows' and 'cols' arguments in constructor should be positive");
-    this->vector = std::vector<double>(this->size, uniform_val);
+
+    this->vector = std::vector<double>(size, uniform_val);
 }
 
 // comma-seperated values are read from the 'file_path'. Dimensions are the same as the layout in the file
@@ -672,6 +673,7 @@ array array::operator+(double number) const
     return array(res, this->rows, this->cols);
 }
 
+// no threading multiplication
 array array::operator*(const array &matrix) const
 {
     if (this->cols != matrix.rows)
@@ -693,6 +695,42 @@ array array::operator*(const array &matrix) const
 
     return array(res, this->rows, matrix.cols);
 }
+
+/* 
+void array::dotProduct(int i, int j, const array* _this, const array *matrix, std::vector<double> *res)
+{
+    double sum = 0.;
+    for (int x = 0; x < _this->get_cols(); x++)
+    {
+        sum += _this->at(i, x) * matrix->at(x, j);
+    }
+    (*res)[i * matrix->get_cols() + j] = sum;
+}
+
+//extremeley slow 
+array array::operator*(const array &matrix) const
+{
+    if (this->cols != matrix.rows)
+        throw std::invalid_argument("for matrix multiplication number of cols of the first one should be equal to the number of rows of the second one.");
+
+    std::vector<double> res(this->rows * matrix.get_cols());
+
+    std::vector<std::thread> threads(this->rows * matrix.get_cols());
+
+    for (int i = 0; i < this->rows; i++)
+    {
+        for (int j = 0; j < matrix.get_cols(); j++)
+        {
+            threads[i * matrix.get_cols() + j] = std::thread(array::dotProduct, i, j, this, &matrix, &res);
+        }
+    }
+    for (std::thread &thread : threads)
+    {
+        thread.join();
+    }
+
+    return array(res, this->rows, matrix.cols);
+} */
 
 array array::operator/(const array &matrix) const
 {
@@ -867,7 +905,7 @@ array array::operator!=(const array &matrix) const
 
 void plot(std::vector<double> xlim, std::vector<double> ylim, array array, std::string file_name)
 {
-    if(array.get_cols() != 2)
+    if (array.get_cols() != 2)
         throw std::invalid_argument("To plot an array, array must have 2 cols");
     std::vector<double> x{array({0, array.get_rows()}, {0, 1}).get_vector()};
     std::vector<double> y{array({0, array.get_rows()}, {1, 2}).get_vector()};

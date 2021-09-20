@@ -14,7 +14,6 @@
 #define WITHOUT_NUMPY 1
 #include "matplotlibcpp.h"
 
-
 #define ROW 0
 #define COL 1
 #define BOTH 2
@@ -109,15 +108,20 @@ private:
     int cols;
     int rows;
     int size;
+
+private:
+    static void dotProduct(int i, int j, const array *_this, const array *matrix, std::vector<double> *res);
+    
 };
+
 
 array read_file(std::string file_path);
 std::ostream &operator<<(std::ostream &out, const array &arr);
 array leastSquares(array data, int order_of_polynomial);
 array diagonal(double value, int rows, int cols);
-array random(double start, double _end, int rows, int cols); // range implementation and intrandom version
-void plot(std::vector<double> xlim, std::vector<double> ylim, array array, std::string file_name); // plot class 
-void plotPoly(double start, double end, array array, std::string file_name); // plot class 
+array random(double start, double _end, int rows, int cols);                                       // range implementation and intrandom version
+void plot(std::vector<double> xlim, std::vector<double> ylim, array array, std::string file_name); // plot class
+void plotPoly(double start, double end, array array, std::string file_name);                       // plot class
 
 /*
     
