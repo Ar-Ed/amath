@@ -1,9 +1,7 @@
-#include "amatrix.h"
-
-namespace plt = matplotlibcpp;
+#include "amath.h"
 
 // 'v' for values, rows for the number of rows, cols for the number of cols. Rows wrap according to the dimensions
-array::array(std::vector<double> v, int rows, int cols) : vector(v)
+Matrix::Matrix(const std::vector<double> &v, const int rows, const int cols) : vector(v)
 {
     if (rows < 1 || cols < 1)
         throw std::invalid_argument("\n\t'rows' and 'cols' arguments in constructor should be positive");
@@ -16,7 +14,7 @@ array::array(std::vector<double> v, int rows, int cols) : vector(v)
 }
 
 // 'uniform_val' for initilization with an uniform value, rows for the number of rows, cols for the number of cols. Rows wrap according to the dimensions
-array::array(double uniform_val, int rows, int cols) : cols(cols), rows(rows), size(rows * cols)
+Matrix::Matrix(const double uniform_val, const int rows, const int cols) : cols(cols), rows(rows), size(rows * cols)
 {
     if (rows < 1 || cols < 1)
         throw std::invalid_argument("\n\t'rows' and 'cols' arguments in constructor should be positive");
@@ -25,7 +23,7 @@ array::array(double uniform_val, int rows, int cols) : cols(cols), rows(rows), s
 }
 
 // comma-seperated values are read from the 'file_path'. Dimensions are the same as the layout in the file
-array::array(std::string file_path)
+Matrix::Matrix(const std::string &file_path)
 {
     std::ifstream f;
     std::vector<double> vec;
@@ -53,8 +51,28 @@ array::array(std::string file_path)
     f.close();
 }
 
-// returns an array with 1 rows with 'partition_count' values ranging from 'start' to 'end'
-array linspace(double start, double end, int partition_count)
+const int Matrix::argmax() const
+{
+    return std::distance(this->vector.begin(), std::max_element(this->vector.begin(), this->vector.end()));
+}
+
+const int Matrix::argmin() const
+{
+    return std::distance(this->vector.begin(), std::min_element(this->vector.begin(), this->vector.end()));
+}
+
+const double Matrix::max() const
+{
+    return *std::max_element(this->vector.begin(), this->vector.end());
+}
+
+const double Matrix::min() const
+{
+    return *std::min_element(this->vector.begin(), this->vector.end());
+}
+
+// returns an Matrix with 1 rows with 'partition_count' values ranging from 'start' to 'end'
+Matrix linspace(const double start, const double end, const int partition_count)
 {
     std::vector<double> vec(partition_count);
     double dx = (end - start) / (partition_count - 1);
@@ -64,11 +82,11 @@ array linspace(double start, double end, int partition_count)
         vec[i] = start + i * dx;
     }
 
-    return array(vec, 1, partition_count);
+    return Matrix(vec, 1, partition_count);
 }
 
-// returns an array with 1 rows with 'partition_count' values ranging from 'start' to 'end' logarithmically
-array logspace(double start, double end, int partition_count)
+// returns an Matrix with 1 rows with 'partition_count' values ranging from 'start' to 'end' logarithmically
+Matrix logspace(double start, double end, int partition_count)
 {
     std::vector<double> vec(partition_count);
     double logdy = (log10(end) - log10(start)) / (partition_count - 1);
@@ -78,33 +96,33 @@ array logspace(double start, double end, int partition_count)
         vec[i] = start + pow(10, i * logdy) - 1;
     }
 
-    return array(vec, 1, partition_count);
+    return Matrix(vec, 1, partition_count);
 }
 
-// returns an array with 1 rows with the values distanced 'step_size' ranging from 'start' to 'end'
-array arange(double start, double end, int step_size)
+// returns an Matrix with 1 rows with the values distanced 'step_size' ranging from 'start' to 'end'
+Matrix arange(const double start, const double end, const int step_size)
 {
-    std::vector<double> vec(ceil((end - start) / step_size));
+    std::vector<double> vec((end - start) / step_size + 1);
 
     vec[0] = start;
-    for (int i = 1; vec[i - 1] < end; i++)
+    for (int i = 0; vec[i - 1] < end; i++)
     {
         vec[i] = start + i * step_size;
     }
 
-    return array(vec, 1, ceil((end - start) / step_size));
+    return Matrix(vec, 1, (end - start) / step_size + 1);
 }
 
-// Returns true if the array is a square matrix
-bool array::isSquare() const
+// Returns true if the Matrix is a square matrix
+bool Matrix::isSquare() const
 {
     if (this->cols == this->rows)
         return true;
     return false;
 }
 
-// Returns true if the array is skew-symmetric matrix
-bool array::isSkewSymmetric() const
+// Returns true if the Matrix is skew-symmetric matrix
+bool Matrix::isSkewSymmetric() const
 {
     if (!this->isSquare())
         return false;
@@ -122,8 +140,8 @@ bool array::isSkewSymmetric() const
     return true;
 }
 
-// Returns true if the array is symmetric matrix
-bool array::isSymmetric() const
+// Returns true if the Matrix is symmetric matrix
+bool Matrix::isSymmetric() const
 {
     if (!this->isSquare())
         return false;
@@ -141,8 +159,8 @@ bool array::isSymmetric() const
     return true;
 }
 
-// Returns true if the array contains only 0 or 1
-bool array::isBoolean() const
+// Returns true if the Matrix contains only 0 or 1
+bool Matrix::isBoolean() const
 {
     for (int i = 0; i < this->rows; i++)
     {
@@ -156,8 +174,8 @@ bool array::isBoolean() const
     return true;
 }
 
-// Returns true if the array contains non-zero values only on the diagonal
-bool array::isDiagonal() const
+// Returns true if the Matrix contains non-zero values only on the diagonal
+bool Matrix::isDiagonal() const
 {
     for (int i = 0; i < this->rows; i++)
     {
@@ -174,12 +192,12 @@ bool array::isDiagonal() const
 }
 
 // LU Factorization
-std::vector<array> array::LUFactor() const
+std::vector<Matrix> Matrix::LUFactor() const
 {
     if (this->rows != this->cols)
         throw std::invalid_argument("\n\tLU factorization requires square a matrix.");
 
-    array Larray = diagonal(1, this->rows, this->cols);
+    Matrix LMatrix = diagonal(1, this->rows, this->cols);
     std::vector<double> vec{this->vector};
 
     for (int i = 0; i < this->rows; i++)
@@ -187,18 +205,18 @@ std::vector<array> array::LUFactor() const
         for (int j = i + 1; j < this->rows; j++)
         {
             double constant = vec[this->cols * j + i] / vec[(this->cols + 1) * i];
-            Larray.assign(constant * Larray(this->cols * i + i), j, i);
+            LMatrix.assign(constant * LMatrix(this->cols * i + i), j, i);
 
             for (int k = 0; k < this->cols; k++)
                 vec[this->cols * j + k] -= constant * vec[this->cols * i + k];
         }
     }
 
-    return std::vector<array>{Larray, array(vec, this->rows, this->cols)};
+    return std::vector<Matrix>{LMatrix, Matrix(vec, this->rows, this->cols)};
 }
 
 // returns the cofactor C_{ij}
-double array::cofactor(int i, int j) const
+double Matrix::cofactor(int i, int j) const
 {
     if (i < 0 || j < 0)
         throw std::invalid_argument("i and j should be nonnegative for the 'minor' function. (ERROR IN 'minor' FUNCTION)");
@@ -220,13 +238,13 @@ double array::cofactor(int i, int j) const
     }
 
     if ((i + j) % 2 == 0)
-        return array(vals, this->rows - 1, this->rows - 1).det();
+        return Matrix(vals, this->rows - 1, this->rows - 1).det();
     else
-        return -array(vals, this->rows - 1, this->rows - 1).det();
+        return -Matrix(vals, this->rows - 1, this->rows - 1).det();
 }
 
 // returns the minor M_{ij}
-double array::minor(int i, int j) const
+double Matrix::minor(int i, int j) const
 {
     if (i < 0 || j < 0)
         throw std::invalid_argument("i and j should be nonnegative for the 'minor' function. (ERROR IN 'minor' FUNCTION)");
@@ -245,11 +263,11 @@ double array::minor(int i, int j) const
             vals.push_back(this->at(x, y));
         }
     }
-    return array(vals, this->rows - 1, this->rows - 1).det();
+    return Matrix(vals, this->rows - 1, this->rows - 1).det();
 }
 
 // returns the matrix of minors
-array array::minorMatrix() const
+Matrix Matrix::minorMatrix() const
 {
     std::vector<double> minors(this->cols * this->rows);
     std::vector<double> dets((this->cols - 1) * (this->rows - 1));
@@ -262,11 +280,11 @@ array array::minorMatrix() const
         }
     }
 
-    return array(minors, this->rows, this->cols);
+    return Matrix(minors, this->rows, this->cols);
 }
 
 // returns the matrix of cofactors
-array array::cofactorMatrix() const
+Matrix Matrix::cofactorMatrix() const
 {
     std::vector<double> minors(this->cols * this->rows);
     std::vector<double> dets((this->cols - 1) * (this->rows - 1));
@@ -279,39 +297,39 @@ array array::cofactorMatrix() const
         }
     }
 
-    return array(minors, this->rows, this->cols);
+    return Matrix(minors, this->rows, this->cols);
 }
 
 // returns the sum of diagonal values. Even if the matrix is not square it acts as if the matrix is square with dimensions 'least(rows,cols)'
-array array::trace() const
+Matrix Matrix::trace() const
 {
     std::vector<double> vec(this->cols);
     double least = fmin(this->cols, this->rows);
     for (int i = 0; i < least; i++)
         vec[i] = this->at(i, i);
 
-    return array(vec, 1, least);
+    return Matrix(vec, 1, least);
 }
 
-// returns an array with diagonal as values. Even if the matrix is not square it acts as if matrix is square with dimensions 'least(rows,cols)'
-array diagonal(double value, int rows, int cols)
+// returns an Matrix with diagonal as values. Even if the matrix is not square it acts as if matrix is square with dimensions 'least(rows,cols)'
+Matrix diagonal(double value, int rows, int cols)
 {
     std::vector<double> vec(cols * rows, 0);
     int least = fmin(rows, cols);
     for (int i = 0; i < least; i++)
         vec[(cols + 1) * i] = 1;
 
-    return array(vec, rows, cols);
+    return Matrix(vec, rows, cols);
 }
 
 // returns the inverse matrix of the square matrix
-array array::inverse()
+Matrix Matrix::inverse() const
 {
     if (this->get_rows() != this->get_cols())
         throw std::invalid_argument("\n\tMatrix should be square to have an inverse matrix");
 
-    array minverse = diagonal(1, this->get_rows(), this->get_cols());
-    std::vector<double> vec{this->get_vector()};
+    Matrix minverse = diagonal(1, this->get_rows(), this->get_cols());
+    std::vector<double> vec{this->vector};
     std::vector<double> x{minverse.get_vector()};
 
     for (int i = 0; i < this->get_rows(); i++)
@@ -346,11 +364,11 @@ array array::inverse()
             x[i * cols + j] /= vec[(this->cols + 1) * i];
         }
 
-    return array(x, this->get_rows(), this->get_cols());
+    return Matrix(x, this->get_rows(), this->get_cols());
 }
 
-// returns an array with dimensions 'rows', 'cols'. Values are distributed from the 'start' value to the 'end'
-array random(double start, double _end, int rows, int cols)
+// returns an Matrix with dimensions 'rows', 'cols'. Values are distributed from the 'start' value to the 'end'
+Matrix random(double start, double _end, int rows, int cols)
 {
     // https://stackoverflow.com/questions/21516575/fill-a-vector-with-random-numbers-c
     std::random_device rnd_device;
@@ -363,11 +381,11 @@ array random(double start, double _end, int rows, int cols)
     std::vector<double> vec(cols * rows);
     generate(begin(vec), end(vec), gen);
 
-    return array(vec, rows, cols);
+    return Matrix(vec, rows, cols);
 }
 
 // writes comma-seperated values. Layout is set according to the 'rows', 'cols'
-void array::write_file(std::string file_path)
+void Matrix::write_file(const std::string &file_path) const
 {
     std::ofstream f;
     f.open(file_path);
@@ -383,7 +401,7 @@ void array::write_file(std::string file_path)
 }
 
 // comma-seperated values are read from the 'file_path'. Dimensions are the same as the layout in the file
-array read_file(std::string file_path)
+Matrix read_file(const std::string &file_path)
 {
     std::ifstream f;
     std::vector<double> vec;
@@ -406,14 +424,14 @@ array read_file(std::string file_path)
 
     f.close();
 
-    return array(vec, _rows, vec.size() / _rows);
+    return Matrix(vec, _rows, vec.size() / _rows);
 }
 
-// Least Squares method for polynomial curve fitting. returns 'array' containing the coefficients of a polynomial. 'data' should have 2 columns. If the number of data points is equal to the 'order_of_polynomial' then the outcome is a polynomial crossing all the points.
-array leastSquares(array data, int order_of_polynomial)
+// Least Squares method for polynomial curve fitting. returns 'Matrix' containing the coefficients of a polynomial. 'data' should have 2 columns. If the number of data points is equal to the 'order_of_polynomial' then the outcome is a polynomial crossing all the points.
+Matrix leastSquares(const Matrix &data, const int order_of_polynomial)
 {
     if (data.get_cols() != 2)
-        throw std::invalid_argument("\n\tNumber of cols of the 'data' array should be 2");
+        throw std::invalid_argument("\n\tNumber of cols of the 'data' Matrix should be 2");
     else if (order_of_polynomial < 1)
         throw std::invalid_argument("\n\t 'order_of_polynomial' should be positive");
 
@@ -447,14 +465,14 @@ array leastSquares(array data, int order_of_polynomial)
             a[j * (order_of_polynomial + 1) + i] = sums[order_of_polynomial - i + j];
     }
 
-    array b(_b, order_of_polynomial + 1, 1);
-    array A(a, order_of_polynomial + 1, order_of_polynomial + 1);
+    Matrix b(_b, order_of_polynomial + 1, 1);
+    Matrix A(a, order_of_polynomial + 1, order_of_polynomial + 1);
 
     return b.solveSquare(A);
 }
 
 // solves the Ax = b equation for square A.
-array array::solveSquare(array matrix)
+Matrix Matrix::solveSquare(const Matrix &matrix) const
 {
     if (matrix.get_rows() != matrix.get_cols())
         throw std::invalid_argument("Matrix should be square.");
@@ -463,7 +481,7 @@ array array::solveSquare(array matrix)
         throw std::invalid_argument("Number of rows of b should be equal to the number of columns of the matrix");
 
     std::vector<double> vec{matrix.get_vector()};
-    std::vector<double> x{this->get_vector()};
+    std::vector<double> x{this->vector};
 
     for (int i = 0; i < matrix.get_rows(); i++)
     {
@@ -490,11 +508,11 @@ array array::solveSquare(array matrix)
     for (int i = 0; i < this->rows; i++)
         x[i] /= vec[(matrix.cols + 1) * i];
 
-    return array(x, this->get_rows(), 1);
+    return Matrix(x, this->get_rows(), 1);
 }
 
 // prints with the delimeter between ever value with the specidifed precision
-void array::print(std::string delimeter, int precision) const
+void Matrix::print(std::string delimeter, int precision) const
 {
     for (int i = 0; i < this->rows; i++)
     {
@@ -505,7 +523,7 @@ void array::print(std::string delimeter, int precision) const
     }
 }
 
-std::ostream &operator<<(std::ostream &out, const array &arr)
+std::ostream &operator<<(std::ostream &out, const Matrix &arr)
 {
     for (int i = 0; i < arr.get_rows(); i++)
     {
@@ -517,7 +535,7 @@ std::ostream &operator<<(std::ostream &out, const array &arr)
 }
 
 // prints with the specified precision
-void array::print(int precision) const
+void Matrix::print(int precision) const
 {
     for (int i = 0; i < this->rows; i++)
     {
@@ -528,13 +546,13 @@ void array::print(int precision) const
     }
 }
 
-// returns the determinant of the array
-double array::det() const
+// returns the determinant of the Matrix
+double Matrix::det() const
 {
     if (this->rows != this->cols)
         throw std::invalid_argument("Matrix should be square to compute the determinant");
 
-    array upper = this->Utriangular();
+    Matrix upper = this->Utriangular();
 
     double determinant = 1;
     for (int i = 0; i < this->cols; i++)
@@ -544,7 +562,7 @@ double array::det() const
 }
 
 // returns an upper triangular matrix
-array array::Utriangular() const
+Matrix Matrix::Utriangular() const
 {
     if (this->rows != this->cols)
         throw std::invalid_argument("Matrix should be square to find an upper triangular form");
@@ -561,11 +579,11 @@ array array::Utriangular() const
                 vec[this->cols * j + k] -= constant * vec[this->cols * i + k];
         }
     }
-    return array(vec, this->rows, this->cols);
+    return Matrix(vec, this->rows, this->cols);
 }
 
 // returns an lower triangular matrix
-array array::Ltriangular() const
+Matrix Matrix::Ltriangular() const
 {
     if (this->rows != this->cols)
         throw std::invalid_argument("Matrix should be square to find an lower triangular form");
@@ -581,11 +599,11 @@ array array::Ltriangular() const
                 vec[this->cols * j + k] = vec[this->cols * j + k] - constant * vec[this->cols * i + k];
         }
     }
-    return array(vec, this->rows, this->cols);
+    return Matrix(vec, this->rows, this->cols);
 }
 
 // aggregates the axis with the given function
-array array::aggregate(int axis, double (*function)(double, double)) const
+Matrix Matrix::aggregate(int axis, double (*function)(double, double)) const
 {
     if (axis == ROW)
     {
@@ -599,7 +617,7 @@ array array::aggregate(int axis, double (*function)(double, double)) const
             }
             vec[i] = res;
         }
-        return array(vec, this->rows, 1);
+        return Matrix(vec, this->rows, 1);
     }
     else if (axis == COL)
     {
@@ -613,7 +631,7 @@ array array::aggregate(int axis, double (*function)(double, double)) const
             }
             vec[i] = res;
         }
-        return array(vec, 1, this->cols);
+        return Matrix(vec, 1, this->cols);
     }
     else if (axis == BOTH)
     {
@@ -624,14 +642,14 @@ array array::aggregate(int axis, double (*function)(double, double)) const
             res = function(res, this->at(j));
         }
         vec[0] = res;
-        return array(vec, 1, 1);
+        return Matrix(vec, 1, 1);
     }
     else
         throw std::invalid_argument("axis should be either COL, ROW or BOTH");
 }
 
-// returns the transpose of the array
-array array::transpose() const
+// returns the transpose of the Matrix
+Matrix Matrix::transpose() const
 {
     std::vector<double> vec{this->vector};
     for (int i = 0; i < this->cols; i++)
@@ -639,33 +657,33 @@ array array::transpose() const
         for (int j = 0; j < this->rows; j++)
             vec[j * this->cols + i] = this->vector[i * this->cols + j];
     }
-    return array(vec, this->cols, this->rows);
+    return Matrix(vec, this->cols, this->rows);
 }
 
-// returns an array with values of value by value application of 'function' to the (*this)
-array array::apply(double (*function)(double)) const
+// returns an Matrix with values of value by value application of 'function' to the (*this)
+Matrix Matrix::apply(double (*function)(double)) const
 {
     std::vector<double> res;
     for (int i = 0; i < this->size; i++)
         res.push_back(function(this->vector[i]));
-    return array(res, this->rows, this->cols);
+    return Matrix(res, this->rows, this->cols);
 }
 
-// returns an array. Pairwise operations between (*this) and the 'second_array'
-array array::pairWise(double (*function)(double, double), array second_array) const
+// returns an Matrix. Pairwise operations between (*this) and the 'second_Matrix'
+Matrix Matrix::pairWise(double (*function)(double, double), const Matrix &second_Matrix) const
 {
-    if (second_array.get_rows() != this->rows || second_array.get_cols() != this->cols)
+    if (second_Matrix.get_rows() != this->rows || second_Matrix.get_cols() != this->cols)
         throw std::invalid_argument("\n\tNumber of cols and rows of the matrices should be equal for pairwise functionality");
 
     std::vector<double> res(this->size);
     for (int i = 0; i < this->size; i++)
-        res[i] = function(this->at(i), second_array.at(i));
+        res[i] = function(this->at(i), second_Matrix.at(i));
 
-    return array(res, this->rows, this->cols);
+    return Matrix(res, this->rows, this->cols);
 }
 
 // row and col indexing
-array array::operator()(std::vector<int> row_range, std::vector<int> col_range) const
+Matrix Matrix::operator()(const std::vector<int> &row_range, const std::vector<int> &col_range) const
 {
     if (row_range.size() != 2 || col_range.size() != 2)
         throw std::invalid_argument("row_range and col_range should be vectors with 2 values");
@@ -673,55 +691,62 @@ array array::operator()(std::vector<int> row_range, std::vector<int> col_range) 
         throw std::invalid_argument("row_range and col_range should be vectors with poisitive values");
 
     int rows = (row_range[1] - row_range[0]), cols = (col_range[1] - col_range[0]);
+
     std::vector<double> vec;
+    vec.reserve(rows * cols);
 
     for (int i = row_range[0]; i < row_range[1]; i++)
     {
         for (int j = col_range[0]; j < col_range[1]; j++)
-            vec.push_back(this->at(i, j));
+            vec.emplace_back(this->at(i, j));
     }
-    return array(vec, rows, cols);
+    return Matrix(vec, rows, cols);
 }
 
-array array::operator*(double number) const
+Matrix Matrix::operator*(const double &number) const
 {
     std::vector<double> res;
+    res.reserve(size);
     for (int i = 0; i < size; i++)
-        res.push_back(this->vector[i] * number);
-    return array(res, this->rows, this->cols);
+        res.emplace_back(this->vector[i] * number);
+    return Matrix(res, this->rows, this->cols);
 }
 
-array array::operator/(double number) const
+Matrix Matrix::operator/(const double &number) const
 {
     std::vector<double> res;
+    res.reserve(size);
     for (int i = 0; i < size; i++)
-        res.push_back(this->vector[i] / number);
-    return array(res, this->rows, this->cols);
+        res.emplace_back(this->vector[i] / number);
+    return Matrix(res, this->rows, this->cols);
 }
 
-array array::operator-(double number) const
+Matrix Matrix::operator-(const double &number) const
 {
     std::vector<double> res;
+    res.reserve(size);
     for (int i = 0; i < size; i++)
-        res.push_back(this->vector[i] - number);
-    return array(res, this->rows, this->cols);
+        res.emplace_back(this->vector[i] - number);
+    return Matrix(res, this->rows, this->cols);
 }
 
-array array::operator+(double number) const
+Matrix Matrix::operator+(const double &number) const
 {
     std::vector<double> res;
+    res.reserve(size);
     for (int i = 0; i < size; i++)
         res.push_back(this->vector[i] + number);
-    return array(res, this->rows, this->cols);
+    return Matrix(res, this->rows, this->cols);
 }
 
-// no threading multiplication
-array array::operator*(const array &matrix) const
+// no threading multiplication, add checks if the element is 0
+Matrix Matrix::operator*(const Matrix &matrix) const
 {
     if (this->cols != matrix.rows)
         throw std::invalid_argument("number of cols of the first one should be equal to the number of rows of the second one.");
 
     std::vector<double> res;
+    res.reserve(matrix.cols * this->rows);
     double product = 0;
 
     for (int i = 0; i < this->rows; i++)
@@ -730,272 +755,303 @@ array array::operator*(const array &matrix) const
         {
             for (int k = 0; k < this->cols; k++)
                 product += (*this)(i, k) * matrix(k, j);
-            res.push_back(product);
+            res.emplace_back(product);
             product = 0;
         }
     }
 
-    return array(res, this->rows, matrix.cols);
+    return Matrix(res, this->rows, matrix.cols);
 }
 
-/* 
-void array::dotProduct(int i, int j, const array* _this, const array *matrix, std::vector<double> *res)
+// Tried not to access 'res' and locking at the end to copy still slow (used nice example with 2 threads)
+/* void Matrix::dotProduct(int i, const Matrix *_this, const Matrix *matrix, std::vector<double> *res)
 {
-    double sum = 0.;
-    for (int x = 0; x < _this->get_cols(); x++)
+    //std::vector<double> results(matrix->get_cols());
+    for (int j = 0; j < matrix->get_cols(); j++)
     {
-        sum += _this->at(i, x) * matrix->at(x, j);
+        double sum = 0.;
+        for (int x = 0; x < _this->get_cols(); x++)
+        {
+            sum += _this->at(i, x) * matrix->at(x, j);
+        }
+        (*res)[matrix->get_cols() * i + j] = sum;
     }
-    (*res)[i * matrix->get_cols() + j] = sum;
 }
 
-//extremeley slow 
-array array::operator*(const array &matrix) const
+//better algorithm for block multiplications find the sweet spot for threading
+Matrix Matrix::operator*(const Matrix &matrix, int thread_count) const
 {
-    if (this->cols != matrix.rows)
+    if (this->cols != matrix.get_rows())
         throw std::invalid_argument("for matrix multiplication number of cols of the first one should be equal to the number of rows of the second one.");
 
     std::vector<double> res(this->rows * matrix.get_cols());
-
-    std::vector<std::thread> threads(this->rows * matrix.get_cols());
+    std::vector<std::thread> threads(this->rows);
 
     for (int i = 0; i < this->rows; i++)
     {
-        for (int j = 0; j < matrix.get_cols(); j++)
-        {
-            threads[i * matrix.get_cols() + j] = std::thread(array::dotProduct, i, j, this, &matrix, &res);
-        }
+        threads[i] = std::thread(Matrix::dotProduct, i, this, &matrix, &res);
     }
-    for (std::thread &thread : threads)
+
+    for (int i = 0; i < this->rows; i++)
     {
-        thread.join();
+        threads[i].join();
     }
 
-    return array(res, this->rows, matrix.cols);
-} */
+    return Matrix(res, this->rows, matrix.get_cols());
+}  */
 
-array array::operator/(const array &matrix) const
+Matrix Matrix::operator/(const Matrix &matrix) const
 {
     if (this->rows != matrix.rows || this->cols != matrix.cols)
         throw std::invalid_argument("Number of cols and rows should match");
 
     std::vector<double> res;
-    for (int i = 0; i < size; i++)
-        res.push_back(this->vector[i] / matrix.vector[i]);
-    return array(res, this->rows, this->cols);
+    res.reserve(this->size);
+
+    for (int i = 0; i < this->size; i++)
+        res.emplace_back(this->vector[i] / matrix.vector[i]);
+    return Matrix(res, this->rows, this->cols);
 }
 
-array array::operator-(const array &matrix) const
+Matrix Matrix::operator-(const Matrix &matrix) const
 {
     if (this->rows != matrix.rows || this->cols != matrix.cols)
         throw std::invalid_argument("Number of cols and rows should match");
 
     std::vector<double> res;
+    res.reserve(this->size);
+
     for (int i = 0; i < size; i++)
-        res.push_back(this->vector[i] - matrix.vector[i]);
-    return array(res, this->rows, this->cols);
+        res.emplace_back(this->vector[i] - matrix.vector[i]);
+    return Matrix(res, this->rows, this->cols);
 }
 
-array array::operator+(const array &matrix) const
+Matrix Matrix::operator+(const Matrix &matrix) const
 {
     if (this->rows != matrix.rows || this->cols != matrix.cols)
         throw std::invalid_argument("Number of cols and rows should match");
 
     std::vector<double> res;
+    res.reserve(this->size);
+
     for (int i = 0; i < size; i++)
-        res.push_back(this->vector[i] + matrix.vector[i]);
-    return array(res, this->rows, this->cols);
+        res.emplace_back(this->vector[i] + matrix.vector[i]);
+    return Matrix(res, this->rows, this->cols);
 }
 
-array array::operator>(double number) const
+Matrix Matrix::operator>(const double &number) const
 {
-    std::vector<double> vec(this->size);
+    std::vector<double> vec;
+    vec.reserve(this->size);
+
     for (int i = 0; i < this->size; i++)
     {
-        vec[i] = this->vector[i] > number;
+        vec.emplace_back(this->vector[i] > number);
     }
-    return array(vec, this->rows, this->cols);
+    return Matrix(vec, this->rows, this->cols);
 }
 
-array array::operator<(double number) const
+Matrix Matrix::operator<(const double &number) const
 {
-    std::vector<double> vec(this->size);
+    std::vector<double> vec;
+    vec.reserve(this->size);
+
     for (int i = 0; i < this->size; i++)
     {
-        vec[i] = this->vector[i] < number;
+        vec.emplace_back(this->vector[i] < number);
     }
-    return array(vec, this->rows, this->cols);
+    return Matrix(vec, this->rows, this->cols);
 }
 
-array array::operator>=(double number) const
+Matrix Matrix::operator>=(const double &number) const
 {
-    std::vector<double> vec(this->size);
+    std::vector<double> vec;
+    vec.reserve(this->size);
+
     for (int i = 0; i < this->size; i++)
     {
         vec[i] = this->vector[i] >= number;
     }
-    return array(vec, this->rows, this->cols);
+    return Matrix(vec, this->rows, this->cols);
 }
 
-array array::operator<=(double number) const
+Matrix Matrix::operator<=(const double &number) const
 {
-    std::vector<double> vec(this->size);
+    std::vector<double> vec;
+    vec.reserve(this->size);
+
     for (int i = 0; i < this->size; i++)
     {
-        vec[i] = this->vector[i] <= number;
+        vec.emplace_back(this->vector[i] <= number);
     }
-    return array(vec, this->rows, this->cols);
+    return Matrix(vec, this->rows, this->cols);
 }
 
-array array::operator==(double number) const
+Matrix Matrix::operator==(const double &number) const
 {
-    std::vector<double> vec(this->size);
+    std::vector<double> vec;
+    vec.reserve(this->size);
+
     for (int i = 0; i < this->size; i++)
     {
-        vec[i] = this->vector[i] == number;
+        vec.emplace_back(this->vector[i] == number);
     }
-    return array(vec, this->rows, this->cols);
+    return Matrix(vec, this->rows, this->cols);
 }
 
-array array::operator!=(double number) const
+Matrix Matrix::operator!=(const double &number) const
 {
-    std::vector<double> vec(this->size);
+    std::vector<double> vec;
+    vec.reserve(this->size);
+
     for (int i = 0; i < this->size; i++)
     {
-        vec[i] = this->vector[i] != number;
+        vec.emplace_back(this->vector[i] != number);
     }
-    return array(vec, this->rows, this->cols);
+    return Matrix(vec, this->rows, this->cols);
 }
 
-array array::operator>(const array &matrix) const
+Matrix Matrix::operator>(const Matrix &matrix) const
 {
     if (this->rows * this->cols != matrix.rows * matrix.cols)
-        throw std::invalid_argument("Sizes of the arrays should match for comparison");
+        throw std::invalid_argument("Sizes of the Matrixs should match for comparison");
 
-    std::vector<double> vec(this->size);
+    std::vector<double> vec;
+    vec.reserve(this->size);
+
     for (int i = 0; i < this->size; i++)
     {
-        vec[i] = this->vector[i] > matrix(i);
+        vec.emplace_back(this->vector[i] > matrix(i));
     }
-    return array(vec, this->rows, this->cols);
+    return Matrix(vec, this->rows, this->cols);
 }
 
-array array::operator<(const array &matrix) const
+Matrix Matrix::operator<(const Matrix &matrix) const
 {
     if (this->rows * this->cols != matrix.rows * matrix.cols)
-        throw std::invalid_argument("Sizes of the arrays should match for comparison");
+        throw std::invalid_argument("Sizes of the Matrixs should match for comparison");
 
-    std::vector<double> vec(this->size);
+    std::vector<double> vec;
+    vec.reserve(this->size);
+
     for (int i = 0; i < this->size; i++)
     {
-        vec[i] = this->vector[i] < matrix(i);
+        vec.emplace_back(this->vector[i] < matrix(i));
     }
-    return array(vec, this->rows, this->cols);
+    return Matrix(vec, this->rows, this->cols);
 }
 
-array array::operator>=(const array &matrix) const
+Matrix Matrix::operator>=(const Matrix &matrix) const
 {
     if (this->rows * this->cols != matrix.rows * matrix.cols)
-        throw std::invalid_argument("Sizes of the arrays should match for comparison");
+        throw std::invalid_argument("Sizes of the Matrixs should match for comparison");
 
-    std::vector<double> vec(this->size);
+    std::vector<double> vec;
+    vec.reserve(this->size);
+
     for (int i = 0; i < this->size; i++)
     {
-        vec[i] = this->vector[i] >= matrix(i);
+        vec.emplace_back(this->vector[i] >= matrix(i));
     }
-    return array(vec, this->rows, this->cols);
+    return Matrix(vec, this->rows, this->cols);
 }
 
-array array::operator<=(const array &matrix) const
+Matrix Matrix::operator<=(const Matrix &matrix) const
 {
     if (this->rows * this->cols != matrix.rows * matrix.cols)
-        throw std::invalid_argument("Sizes of the arrays should match for comparison");
+        throw std::invalid_argument("Sizes of the Matrixs should match for comparison");
 
-    std::vector<double> vec(this->size);
+    std::vector<double> vec;
+    vec.reserve(this->size);
+
     for (int i = 0; i < this->size; i++)
     {
-        vec[i] = this->vector[i] <= matrix(i);
+        vec.emplace_back(this->vector[i] <= matrix(i));
     }
-    return array(vec, this->rows, this->cols);
+    return Matrix(vec, this->rows, this->cols);
 }
 
-array array::operator==(const array &matrix) const
+Matrix Matrix::operator==(const Matrix &matrix) const
 {
     if (this->rows * this->cols != matrix.rows * matrix.cols)
-        throw std::invalid_argument("Sizes of the arrays should match for comparison");
+        throw std::invalid_argument("Sizes of the Matrixs should match for comparison");
 
-    std::vector<double> vec(this->size);
+    std::vector<double> vec;
+    vec.reserve(this->size);
+
     for (int i = 0; i < this->size; i++)
     {
-        vec[i] = this->vector[i] == matrix(i);
+        vec.emplace_back(this->vector[i] == matrix(i));
     }
-    return array(vec, this->rows, this->cols);
+    return Matrix(vec, this->rows, this->cols);
 }
 
-array array::operator!=(const array &matrix) const
+Matrix Matrix::operator!=(const Matrix &matrix) const
 {
     if (this->rows * this->cols != matrix.rows * matrix.cols)
-        throw std::invalid_argument("Sizes of the arrays should match for comparison");
+        throw std::invalid_argument("Sizes of the Matrixs should match for comparison");
 
-    std::vector<double> vec(this->size);
+    std::vector<double> vec;
+    vec.reserve(this->size);
+
     for (int i = 0; i < this->size; i++)
     {
-        vec[i] = this->vector[i] != matrix(i);
+        vec.emplace_back(this->vector[i] != matrix(i));
     }
-    return array(vec, this->rows, this->cols);
+    return Matrix(vec, this->rows, this->cols);
 }
 
-void plot(std::vector<double> xlim, std::vector<double> ylim, array array, std::string file_name)
+void plot(const Matrix &Matrix, const std::vector<double> &xlim, const std::vector<double> &ylim, const std::string &file_name)
 {
-    if (array.get_cols() != 2)
-        throw std::invalid_argument("To plot an array, array must have 2 cols");
-    std::vector<double> x{array({0, array.get_rows()}, {0, 1}).get_vector()};
-    std::vector<double> y{array({0, array.get_rows()}, {1, 2}).get_vector()};
+    if (Matrix.get_cols() != 2)
+        throw std::invalid_argument("To plot an Matrix, Matrix must have 2 cols");
+    std::vector<double> x{Matrix({0, Matrix.get_rows()}, {0, 1}).get_vector()};
+    std::vector<double> y{Matrix({0, Matrix.get_rows()}, {1, 2}).get_vector()};
 
-    plt::figure_size(600, 400);
+    matplotlibcpp::figure_size(600, 400);
 
-    plt::plot(x, y, "ro");
+    matplotlibcpp::plot(x, y, "ro");
 
-    plt::xlim(xlim[0], xlim[1]);
-    plt::ylim(ylim[0], ylim[1]);
+    matplotlibcpp::xlim(xlim[0], xlim[1]);
+    matplotlibcpp::ylim(ylim[0], ylim[1]);
 
     if (!file_name.empty())
     {
-        plt::save(file_name);
+        matplotlibcpp::save(file_name);
     }
 
-    plt::show();
+    matplotlibcpp::show();
 }
 
-void plotPoly(std::vector<double> xlim, std::vector<double> ylim, array arr, array range, array &data, std::string file_name)
+void plotModel(const Matrix &model, const Matrix &data, const Matrix &range, const std::vector<double> &xlim, const std::vector<double> &ylim, const std::string &file_name)
 {
-    if (arr.get_cols() != 1)
-        throw std::runtime_error("plotPoly array must have 1 columns");
+    if (model.get_cols() != 1)
+        throw std::runtime_error("plotModel Matrix must have 1 columns");
 
     std::vector<double> vec(range.get_size());
 
     for (int j = 0; j < range.get_size(); j++)
     {
         double y_val = 0;
-        for (int i = 0; i < arr.get_size(); i++)
+        for (int i = 0; i < model.get_size(); i++)
         {
-            y_val += arr(arr.get_size() - i - 1) * pow(range(j), i);
+            y_val += model(model.get_size() - i - 1) * pow(range(j), i);
         }
         vec[j] = y_val;
     }
 
-    plt::figure_size(600, 400);
+    matplotlibcpp::figure_size(600, 400);
 
-    plt::plot(range.get_vector(), vec, "b");
-    plt::scatter(data({0, data.get_rows()}, {0, 1}).get_vector(), data({0, data.get_rows()}, {1, 2}).get_vector(), 10.);
+    matplotlibcpp::plot(range.get_vector(), vec, "b");
+    matplotlibcpp::scatter(data({0, data.get_rows()}, {0, 1}).get_vector(), data({0, data.get_rows()}, {1, 2}).get_vector(), 10.);
 
-    plt::xlim(xlim[0], xlim[1]);
-    plt::ylim(ylim[0], ylim[1]);
+    matplotlibcpp::xlim(xlim[0], xlim[1]);
+    matplotlibcpp::ylim(ylim[0], ylim[1]);
 
     if (!file_name.empty())
     {
-        plt::save(file_name);
+        matplotlibcpp::save(file_name);
     }
 
-    plt::show();
+    matplotlibcpp::show();
 }
