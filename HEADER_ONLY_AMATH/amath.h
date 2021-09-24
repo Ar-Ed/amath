@@ -35,8 +35,8 @@ struct Matrix
     void print(const int precision) const;
 
     Matrix aggregate(int axis, double (*function)(double, double)) const;
-    Matrix apply(double (*function)(double)) const;
-    Matrix pairWise(double (*function)(double, double), const Matrix &second_Matrix) const;
+    Matrix apply(const std::function<double(const double &)> &function) const;
+    Matrix pairWise(const std::function<double(const double &, const double &)> &function, const Matrix &second_Matrix) const;
 
     Matrix solveSquare(const Matrix &matrix) const;
     Matrix inverse() const;
@@ -130,6 +130,9 @@ void plot(const Matrix &Matrix, const std::vector<double> &xlim, const std::vect
 void plotModel(const Matrix &model, const Matrix &data, const Matrix &range, const std::vector<double> &xlim, const std::vector<double> &ylim, const std::string &file_name = ""); // plot class
 
 /*
+    *** MAJOR ***
+    multithreading
+
     Class Structure: Matrix --> matrix, Array --> Poly
     macros --> enums
     ********* linspace, logspace, arange 
@@ -807,7 +810,7 @@ Matrix Matrix::transpose() const
 }
 
 // returns an Matrix with values of value by value application of 'function' to the (*this)
-Matrix Matrix::apply(double (*function)(double)) const
+Matrix Matrix::apply(const std::function<double(const double &)> &function) const
 {
     std::vector<double> res;
     for (int i = 0; i < this->size; i++)
@@ -816,7 +819,7 @@ Matrix Matrix::apply(double (*function)(double)) const
 }
 
 // returns an Matrix. Pairwise operations between (*this) and the 'second_Matrix'
-Matrix Matrix::pairWise(double (*function)(double, double), const Matrix &second_Matrix) const
+Matrix Matrix::pairWise(const std::function<double(const double &, const double &)> &function, const Matrix &second_Matrix) const
 {
     if (second_Matrix.get_rows() != this->rows || second_Matrix.get_cols() != this->cols)
         throw std::invalid_argument("\n\tNumber of cols and rows of the matrices should be equal for pairwise functionality");
@@ -1071,6 +1074,32 @@ Matrix Matrix::operator>(const Matrix &matrix) const
     }
     return Matrix(vec, this->rows, this->cols);
 }
+
+/* void Matrix::biggerThan(std::vector<double> &vec);
+
+Matrix Matrix::operator>(const Matrix &matrix, bool threaded, int number_of_threads) const
+{
+    if (this->rows * this->cols != matrix.rows * matrix.cols)
+        throw std::invalid_argument("Sizes of the Matrixs should match for comparison");
+
+    std::vector<double> vec;
+    vec.reserve(this->size);
+    ver.resize(this->size);
+
+    std::array<std::thread, number_of_threads - 1> threads;
+
+    for (int i = 1; i < number_of_threads; i++)
+    {
+        threads[i - 1] = std::thread(Matrix::biggerThan, vec)
+    }
+
+    for (std::thread &thread : threads)
+    {
+        thread.join()
+    }
+
+    return Matrix(vec, this->rows, this->cols);
+} */
 
 Matrix Matrix::operator<(const Matrix &matrix) const
 {

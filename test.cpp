@@ -1,5 +1,29 @@
 #include "HEADER_ONLY_AMATH/amath.h"
 
+class Timer
+{
+    std::chrono::high_resolution_clock::time_point start, end;
+    int timer;
+    static int timer_count;
+
+public:
+    Timer()
+    {
+        start = std::chrono::high_resolution_clock::now();
+        timer = timer_count;
+        timer_count++;
+    }
+
+    ~Timer()
+    {
+        end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> duration = end - start;
+        std::cout << "\nTimer Id: " << timer << " Finished in: " << duration.count() << "\n";
+    }
+};
+
+int Timer::timer_count = 0;
+
 int main()
 {
     Matrix m1({1, 2, 3, 5,
@@ -90,7 +114,10 @@ int main()
     auto start = std::chrono::high_resolution_clock::now();
     /* for (int i = 0; i < 10; i++)
         Matrix(2., 5, 100) * Matrix(1., 100, 100000); */
-    //Matrix(2., 10, 100) * Matrix(1., 100, 100000);
+    {
+        Timer timer;
+        Matrix(2., 2, 100) * Matrix(1., 100, 100000);
+    }
     auto end = std::chrono::high_resolution_clock::now();
     std::cout << "\n"
               << (std::chrono::duration_cast<std::chrono::microseconds>(end - start)).count() / 10000;
@@ -113,12 +140,20 @@ int main()
     Matrix mydata = read_file("example_data/linear.csv");
     Matrix model = leastSquares(mydata, 1);
 
-    plotModel(model, mydata, linspace(-2, 12, 10), {-2, 12}, {-10, 20});
+    //plotModel(model, mydata, linspace(-2, 12, 10), {-2, 12}, {-10, 20});
     std::cout << mydata.max() << "\n"
               << mydata.min() << "\n"
               << mydata.argmax() << "\n"
               << mydata.argmin() << "\n\n"
               << leastSquares(mydata, 1);
+
+    Matrix matrixx(10, 10000, 100000);
+
+    {
+        Timer timer1;
+        Matrix mm{matrixx > matrixx};
+    }
+
 
     return 0;
 }

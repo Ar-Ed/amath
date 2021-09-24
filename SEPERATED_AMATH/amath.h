@@ -13,7 +13,7 @@
 #include <mutex>
 
 #define WITHOUT_NUMPY 1
-#include "matplotlibcpp.h"
+#include "../dependencies/matplotlibcpp.h"
 
 #define ROW 0
 #define COL 1
@@ -35,8 +35,8 @@ struct Matrix
     void print(const int precision) const;
 
     Matrix aggregate(int axis, double (*function)(double, double)) const;
-    Matrix apply(double (*function)(double)) const;
-    Matrix pairWise(double (*function)(double, double), const Matrix &second_Matrix) const;
+    Matrix apply(const std::function<double (const double&)>& function ) const;
+    Matrix pairWise(const std::function<double (const double&, const double&)>& function, const Matrix &second_Matrix) const;
 
     Matrix solveSquare(const Matrix &matrix) const;
     Matrix inverse() const;

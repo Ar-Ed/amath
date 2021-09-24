@@ -1,5 +1,3 @@
-#include "amath.h"
-
 // 'v' for values, rows for the number of rows, cols for the number of cols. Rows wrap according to the dimensions
 Matrix::Matrix(const std::vector<double> &v, const int rows, const int cols) : vector(v)
 {
@@ -661,7 +659,7 @@ Matrix Matrix::transpose() const
 }
 
 // returns an Matrix with values of value by value application of 'function' to the (*this)
-Matrix Matrix::apply(double (*function)(double)) const
+Matrix Matrix::apply(const std::function<double (const double&)>& function ) const
 {
     std::vector<double> res;
     for (int i = 0; i < this->size; i++)
@@ -670,7 +668,7 @@ Matrix Matrix::apply(double (*function)(double)) const
 }
 
 // returns an Matrix. Pairwise operations between (*this) and the 'second_Matrix'
-Matrix Matrix::pairWise(double (*function)(double, double), const Matrix &second_Matrix) const
+Matrix Matrix::pairWise(const std::function<double (const double&, const double&)>& function, const Matrix &second_Matrix) const
 {
     if (second_Matrix.get_rows() != this->rows || second_Matrix.get_cols() != this->cols)
         throw std::invalid_argument("\n\tNumber of cols and rows of the matrices should be equal for pairwise functionality");
