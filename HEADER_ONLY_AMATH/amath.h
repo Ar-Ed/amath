@@ -13,7 +13,7 @@
 #include <mutex>
 
 #define WITHOUT_NUMPY 1
-#include "../dependencies/matplotlibcpp.h"
+#include "../dependencies/matplotlibcpp/matplotlibcpp.h"
 
 #define ROW 0
 #define COL 1
@@ -58,6 +58,9 @@ struct Matrix
     bool isSymmetric() const;
     bool isBoolean() const;
     bool isDiagonal() const;
+
+    // on work
+    Matrix BiggerThanThreaded(const Matrix &matrix, const int number_of_threads) const;
 
     Matrix operator>(const double &number) const;
     Matrix operator<(const double &number) const;
@@ -115,6 +118,7 @@ private:
     int size;
 
 private:
+    static void biggerThan(const Matrix *matrix, const Matrix *_this, std::vector<double> *vec, int start, int len);
     static void dotProduct(int i, const Matrix *_this, const Matrix *matrix, std::vector<double> *res);
 };
 
@@ -1063,7 +1067,7 @@ Matrix Matrix::operator!=(const double &number) const
 Matrix Matrix::operator>(const Matrix &matrix) const
 {
     if (this->rows * this->cols != matrix.rows * matrix.cols)
-        throw std::invalid_argument("Sizes of the Matrixs should match for comparison");
+        throw std::invalid_argument("Sizes of the Matrices should match for comparison");
 
     std::vector<double> vec;
     vec.reserve(this->size);
@@ -1075,27 +1079,43 @@ Matrix Matrix::operator>(const Matrix &matrix) const
     return Matrix(vec, this->rows, this->cols);
 }
 
-/* void Matrix::biggerThan(std::vector<double> &vec);
-
-Matrix Matrix::operator>(const Matrix &matrix, bool threaded, int number_of_threads) const
+void Matrix::biggerThan(const Matrix *matrix, const Matrix *_this, std::vector<double> *vec, int start, int len)
 {
-    if (this->rows * this->cols != matrix.rows * matrix.cols)
-        throw std::invalid_argument("Sizes of the Matrixs should match for comparison");
+    for (int i = start; i < start + len; i++)
+    {
+        (*vec)[i] = _this->vector[i] > matrix->at(i);
+    }
+}
+
+/* Matrix Matrix::BiggerThanThreaded(const Matrix &matrix, const int number_of_threads) const
+{
+    if (this->rows * this->cols != matrix.get_rows() * matrix.get_cols())
+        throw std::invalid_argument("Sizes of the Matrices should match for comparison");
 
     std::vector<double> vec;
     vec.reserve(this->size);
-    ver.resize(this->size);
+    vec.resize(this->size);
 
-    std::array<std::thread, number_of_threads - 1> threads;
+    std::vector<std::thread> threads;
+
+    int valByThread = floor(matrix.get_size() / number_of_threads);
 
     for (int i = 1; i < number_of_threads; i++)
     {
-        threads[i - 1] = std::thread(Matrix::biggerThan, vec)
+        threads.push_back(std::thread(Matrix::biggerThan, &matrix, this, &vec, valByThread * (i - 1), valByThread));
+    }
+
+    if (int c = matrix.get_size() % number_of_threads)
+    {
+        for (int i = 0; i < this->size; i++)
+        {
+            vec[i] = this->vector[i] > matrix(i);
+        }
     }
 
     for (std::thread &thread : threads)
     {
-        thread.join()
+        thread.join();
     }
 
     return Matrix(vec, this->rows, this->cols);
@@ -1104,7 +1124,7 @@ Matrix Matrix::operator>(const Matrix &matrix, bool threaded, int number_of_thre
 Matrix Matrix::operator<(const Matrix &matrix) const
 {
     if (this->rows * this->cols != matrix.rows * matrix.cols)
-        throw std::invalid_argument("Sizes of the Matrixs should match for comparison");
+        throw std::invalid_argument("Sizes of the Matrices should match for comparison");
 
     std::vector<double> vec;
     vec.reserve(this->size);
@@ -1119,7 +1139,7 @@ Matrix Matrix::operator<(const Matrix &matrix) const
 Matrix Matrix::operator>=(const Matrix &matrix) const
 {
     if (this->rows * this->cols != matrix.rows * matrix.cols)
-        throw std::invalid_argument("Sizes of the Matrixs should match for comparison");
+        throw std::invalid_argument("Sizes of the Matrices should match for comparison");
 
     std::vector<double> vec;
     vec.reserve(this->size);
@@ -1134,7 +1154,7 @@ Matrix Matrix::operator>=(const Matrix &matrix) const
 Matrix Matrix::operator<=(const Matrix &matrix) const
 {
     if (this->rows * this->cols != matrix.rows * matrix.cols)
-        throw std::invalid_argument("Sizes of the Matrixs should match for comparison");
+        throw std::invalid_argument("Sizes of the Matrices should match for comparison");
 
     std::vector<double> vec;
     vec.reserve(this->size);
@@ -1149,7 +1169,7 @@ Matrix Matrix::operator<=(const Matrix &matrix) const
 Matrix Matrix::operator==(const Matrix &matrix) const
 {
     if (this->rows * this->cols != matrix.rows * matrix.cols)
-        throw std::invalid_argument("Sizes of the Matrixs should match for comparison");
+        throw std::invalid_argument("Sizes of the Matrices should match for comparison");
 
     std::vector<double> vec;
     vec.reserve(this->size);
@@ -1164,7 +1184,7 @@ Matrix Matrix::operator==(const Matrix &matrix) const
 Matrix Matrix::operator!=(const Matrix &matrix) const
 {
     if (this->rows * this->cols != matrix.rows * matrix.cols)
-        throw std::invalid_argument("Sizes of the Matrixs should match for comparison");
+        throw std::invalid_argument("Sizes of the Matrices should match for comparison");
 
     std::vector<double> vec;
     vec.reserve(this->size);

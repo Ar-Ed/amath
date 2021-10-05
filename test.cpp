@@ -154,6 +154,7 @@ int main()
         Matrix mm{matrixx > matrixx};
     }
 
+    //std::cout << Matrix(5, 5, 5).BiggerThanThreaded(Matrix(6, 5, 5), 2);
 
     return 0;
 }
